@@ -1,4 +1,5 @@
 <?php
+session_start();
 require("./partials/config.php");
 try {
     // echo
@@ -24,21 +25,22 @@ try {
         $first_author_email = $_POST["email"];
         $first_author_salutation = $_POST["salutation"];
         $first_author_name = $_POST["name"];
+        $first_author_institute_name = $_POST["institute_name"];
         $first_author_register_as = $_POST["participantType"];
         $first_author_designation = $_POST["designation"];
         $first_author_gender = $_POST["gender"];
         $first_author_mobile = $_POST["phno"];
         $payment_id = $_POST["paymentId"];
-        $photo_url = $reg_id . "_" . $_FILES["photo"]["name"];
+        $photo_url =  $reg_id . "_" . $_FILES["photo"]["name"];
         $address = addslashes($_POST["address"]);
 
         $targetPath = $uploadDir . $photo_url;
         if (move_uploaded_file($_FILES["photo"]["tmp_name"], $targetPath)) {
             // echo "Image uploaded successfully.";
-            $query = "INSERT INTO tbl_attendents (`reg_id`, `attendent_type`, `first_author_email`, `first_author_salutation`, `first_author_name`,
+            $query = "INSERT INTO tbl_attendents (`reg_id`, `attendent_type`, `first_author_email`, `first_author_salutation`, `first_author_name`, `first_author_institute_name`,
             `first_author_register_as`, `first_author_designation`, `first_author_gender`, `first_author_mobile`, `first_author_address`, `first_author_photo`,
             `payment_id`
-            ) VALUES ('$reg_id', '$attendent_type', '$first_author_email', '$first_author_salutation', '$first_author_name', '$first_author_register_as', '$first_author_designation', '$first_author_gender', '$first_author_mobile', '$address', '$photo_url', '$payment_id')";
+            ) VALUES ('$reg_id', '$attendent_type', '$first_author_email', '$first_author_salutation', '$first_author_name','$first_author_institute_name', '$first_author_register_as', '$first_author_designation', '$first_author_gender', '$first_author_mobile', '$address', '$targetPath', '$payment_id')";
 
             if ($conn->query($query)) {
                 ?>

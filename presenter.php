@@ -1,18 +1,17 @@
 <?php
 
+session_start();
 require("./partials/config.php");
 
 try {
     //code...
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        function uploadFile($file, $uploadDir)
+        function uploadFile($file, $targetPath)
         {
-            $fileName = basename($file["name"]);
-            $targetPath = $uploadDir . $fileName;
 
             if (move_uploaded_file($file["tmp_name"], $targetPath)) {
-                return $fileName;
+                return true;
             } else {
                 return false;
             }
@@ -25,17 +24,17 @@ try {
         if ($result->num_rows > 0) {
             // Fetch the associative array of the first row
             $row = $result->fetch_assoc();
-        
+
             // Extract the numeric part from the 'regId' field
             $regId = $row['reg_id'];
-            $numericPart = (int)substr($regId, 3);
+            $numericPart = (int) substr($regId, 3);
             $numericPart += 1;
-        
+
             // echo $numericPart;
         } else {
-            $numericPart=1;
+            $numericPart = 1;
         }
-        $reg_id = "atd".$numericPart;
+        $reg_id = "atd" . $numericPart;
 
 
 
@@ -49,18 +48,26 @@ try {
         $abstractFile = $_FILES["abstract"];
         $paperFile = $_FILES["paper"];
 
+        $abstract_file_url = $reg_id . "_abstract_" . $abstractFile["name"];
+        $paper_file_url = $reg_id . "_paper_" . $paperFile["name"];
+
+        $targetpath_for_abstract = "./uploads/docs/" . $abstract_file_url;
+        $targetpath_for_paper = "./uploads/docs/" . $paper_file_url;
+
         // Handle First Author details
         $firstEmail = $_POST["first_email"];
         $firstSalutation = $_POST["first_salutation"];
         $firstName = $_POST["first_name"];
         $firstInstituteName = $_POST["first_institute_name"];
         $firstDesignation = $_POST["first_designation"];
-        $first_author_gender = $_POST["first_author_gender"];
-        $first_author_mobile = $_POST["first_author_phno"];
+        $first_author_gender = $_POST["first_gender"];
+        $first_author_mobile = $_POST["first_phno"];
         $first_presenter_type = $_POST["first_presenter_type"];
-        $first_author_address = $_POST["first_author_address"];
+        $first_author_address = addslashes($_POST["first_author_address"]);
         // Upload First Author photo
-        $firstPhoto = $_FILES["first_photo"];
+        // $firstPhoto = $_FILES["first_photo"];
+        $first_photo_url = "./uploads/photos/". $reg_id . "_" . $_FILES["first_photo"]["name"];
+
 
         if ($hasSecondAuthor) {
             $secondEmail = $_POST["second_email"];
@@ -68,27 +75,118 @@ try {
             $secondName = $_POST["second_name"];
             $secondInstituteName = $_POST["second_institute_name"];
             $secondDesignation = $_POST["second_designation"];
-            $second_author_gender = $_POST["second_author_gender"];
-            $second_author_mobile = $_POST["second_author_phno"];
+            $second_author_gender = $_POST["second_gender"];
+            $second_author_mobile = $_POST["second_phno"];
             $second_presenter_type = $_POST["second_presenter_type"];
+            $second_author_address = addslashes($_POST["second_author_address"]);
             // Upload Second Author photo
-            $secondPhoto = $_FILES["second_photo"];
+            $second_photo_url ="./uploads/photos/". $reg_id . "_" . $_FILES["second_photo"]["name"];
         }
-        
+
         if ($hasThirdAuthor) {
             $thirdEmail = $_POST["third_email"];
             $thirdSalutation = $_POST["third_salutation"];
             $thirdName = $_POST["third_name"];
             $thirdInstituteName = $_POST["third_institute_name"];
             $thirdDesignation = $_POST["third_designation"];
-            $third_author_gender = $_POST["third_author_gender"];
-            $third_author_mobile = $_POST["third_author_phno"];
+            $third_author_gender = $_POST["third_gender"];
+            $third_author_mobile = $_POST["third_phno"];
             $third_presenter_type = $_POST["third_presenter_type"];
+            $third_author_address = addslashes($_POST["third_author_address"]);
             // Upload Third Author photo
-            $thirdPhoto = $_FILES["third_photo"];
+            $third_photo_url ="./uploads/photos/". $reg_id . "_" . $_FILES["third_photo"]["name"];
         }
-        
-        
+
+        $payment_id = $_POST["paymentId"];
+
+        //uploading files then proceeding forward
+
+        if (
+            uploadFile($abstractFile, $targetpath_for_abstract)
+            &&
+            uploadFile($paperFile, $targetpath_for_paper)
+            &&
+            uploadFile($_FILES["first_photo"], $first_photo_url)
+        ) {
+            if ($hasSecondAuthor) {
+                if (uploadFile($_FILES["second_photo"], $second_photo_url)) {
+                    if ($hasThirdAuthor) {
+                        if (uploadFile($_FILES["third_photo"], $third_photo_url)) {
+                            // execute query 
+
+                            $query = "insert into tbl_attendents values('$reg_id','Presenter','$track','$paperTitle','$abstract_file_url','$paper_file_url','$firstEmail', '$firstSalutation', '$firstName','$firstInstituteName' ,'$first_presenter_type', '$firstDesignation', '$first_author_gender', '$first_author_mobile', '$first_author_address', '$first_photo_url','$secondEmail', '$secondSalutation', '$secondName','$secondInstituteName' ,'$second_presenter_type', '$secondDesignation', '$second_author_gender', '$second_author_mobile', '$second_author_address', '$second_photo_url','$thirdEmail', '$thirdSalutation', '$thirdName','$thirdInstituteName' ,'$third_presenter_type', '$thirdDesignation', '$third_author_gender', '$third_author_mobile', '$third_author_address', '$third_photo_url','$payment_id')";
+
+                            if ($conn->query($query)) {
+                                ?>
+                                <script>
+                                    alert("Presenter Team Registered Successfully");
+                                </script>
+                                <?php
+                            } else {
+                                echo "Error: " . $conn->error;
+                            }
+
+
+                        } else {
+                            // uploading error
+                            ?>
+                            <script>
+                                alert("Error While Uploading Photo of 3rd Author");
+                            </script>
+                            <?php
+                        }
+                    } {
+                        // execute Query
+                        $query = "insert into tbl_attendents values('$reg_id','Presenter','$track','$paperTitle','$abstract_file_url','$paper_file_url','$firstEmail', '$firstSalutation', '$firstName','$firstInstituteName' ,'$first_presenter_type', '$firstDesignation', '$first_author_gender', '$first_author_mobile', '$first_author_address', '$first_photo_url','$secondEmail', '$secondSalutation', '$secondName','$secondInstituteName' ,'$second_presenter_type', '$secondDesignation', '$second_author_gender', '$second_author_mobile', '$second_author_address', '$second_photo_url',NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,'$payment_id')";
+
+                        if ($conn->query($query)) {
+                            ?>
+                            <script>
+                                alert("Presenter Team Registered Successfully");
+                            </script>
+                            <?php
+                        } else {
+                            echo "Error: " . $conn->error;
+                        }
+
+
+                    }
+                } else {
+                    // uploading error
+                    ?>
+                    <script>
+                        alert("Error While Uploading Photo of 2nd Author");
+                    </script>
+                    <?php
+                }
+            } else {
+                // execute Query
+                $query = "insert into tbl_attendents values('$reg_id','Presenter','$track','$paperTitle','$abstract_file_url','$paper_file_url','$firstEmail', '$firstSalutation', '$firstName','$firstInstituteName' ,'$first_presenter_type', '$firstDesignation', '$first_author_gender', '$first_author_mobile', '$first_author_address', '$first_photo_url',NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,'$payment_id')";
+
+                if ($conn->query($query)) {
+                    ?>
+                    <script>
+                        alert("Presenter Team Registered Successfully");
+                    </script>
+                    <?php
+                } else {
+                    echo "Error: " . $conn->error;
+                }
+
+
+            }
+        } else {
+            // uploading error
+            ?>
+            <script>
+                alert("Error While Uploading Photo of 1st Author or Paper or Abstract");
+            </script>
+            <?php
+        }
+
+
+
+
 
     }
 
@@ -213,11 +311,11 @@ try {
                         <label for="gender"> Gender :</label>
                         <section class="form-group">
                             <label for="maleRadio">Male</label>
-                            <input type="radio" class="form-check-input" id="first_male_radio" name="fisrt_gender"
+                            <input type="radio" class="form-check-input" id="first_male_radio" name="first_gender"
                                 value="male" required>
 
                             <label for="femaleRadio">Female</label>
-                            <input type="radio" class="form-check-input" id="fisrt_female_radio" name="fisrt_gender"
+                            <input type="radio" class="form-check-input" id="fisrt_female_radio" name="first_gender"
                                 value="female" required>
 
                             <label for="transgenderRadio">Transgender</label>
@@ -233,7 +331,7 @@ try {
                     <section class="px-3 my-3 custom-file">
                         <label class="custom-file-label" for="photo">Upload Passport Photograph ( for
                             certificate):</label>
-                        <input type="file" class="custom-file-input" name="fisrt_photo" id="first_photo"
+                        <input type="file" class="custom-file-input" name="first_photo" id="first_photo"
                             accept="image/*" required>
                     </section>
                     <section class="px-3 my-3">
@@ -259,13 +357,13 @@ try {
                     </section>
                     <section class="px-3 my-3">
                         <label for="email">Email:</label>
-                        <input type="email" name="second_email" id="second_email" class="form-control"
+                        <input type="email" name="second_email" id="second_email" class="form-control second"
                             placeholder="Enter Email">
                     </section>
 
                     <section class="px-3 my-3">
                         <label for="salutation">Your Salutation:</label>
-                        <select name="second_salutation" id="second_salutation" class="p-1 form-control">
+                        <select name="second_salutation" id="second_salutation" class="p-1 form-control second">
                             <option value="">-- Select Your Salutation --</option>
                             <option value="Mr.">Mr.</option>
                             <option value="Mrs.">Mrs.</option>
@@ -281,56 +379,56 @@ try {
                     </section>
                     <section class="px-3 my-3">
                         <label for="name">Full Name: (for Certificate purpose) </label>
-                        <input type="text" name="second_name" id="second_name" class="form-control"
+                        <input type="text" name="second_name" id="second_name" class="form-control second"
                             placeholder="Enter Full Name">
                     </section>
 
                     <section class="px-3 my-3">
                         <label for="institute_name">Esteemed Institute Name: (for Certificate purpose) </label>
-                        <input type="text" name="second_institute_name" id="second_institute_name" class="form-control"
+                        <input type="text" name="second_institute_name" id="second_institute_name" class="form-control second"
                             placeholder="Enter Institute Name">
                     </section>
 
                     <section class="px-3 my-3">
                         <label for="Designation">Designation: (for Certificate purpose) </label>
-                        <input type="text" name="second_designation" id="second_designation" class="form-control"
+                        <input type="text" name="second_designation" id="second_designation" class="form-control second"
                             placeholder="Enter Designation">
                     </section>
                     <section class="px-3 my-3">
                         <label for="address">We can meet (Address)</label>
                         <textarea name="second_author_address" id="second_author_address" cols="30" rows="10"
-                            class="form-control" required></textarea>
+                            class="form-control second" required></textarea>
                     </section>
                     <section class="px-3 my-3">
                         <label for="gender"> Gender :</label>
                         <section class="form-group">
                             <label for="maleRadio">Male</label>
-                            <input type="radio" class="form-check-input" id="second_male_radio" name="second_gender"
+                            <input type="radio" class="form-check-input second" id="second_male_radio" name="second_gender"
                                 value="male">
 
                             <label for="femaleRadio">Female</label>
-                            <input type="radio" class="form-check-input" id="second_female_radio" name="second_gender"
+                            <input type="radio" class="form-check-input second" id="second_female_radio" name="second_gender"
                                 value="female">
 
                             <label for="transgenderRadio">Transgender</label>
-                            <input type="radio" class="form-check-input" id="second_transgender_radio"
+                            <input type="radio" class="form-check-input second" id="second_transgender_radio"
                                 name="second_gender" value="transgender">
                         </section>
                     </section>
                     <section class="px-3 my-3">
                         <label for="phno">Phone Number:</label>
                         <input type="tel" name="second_phno" id="second_phno" placeholder="Enter Phone Number"
-                            class="form-control">
+                            class="form-control second">
                     </section>
                     <section class="px-3 my-3 custom-file">
                         <label class="custom-file-label" for="photo">Upload Passport Photograph ( for
                             certificate):</label>
-                        <input type="file" class="custom-file-input" name="second_photo" id="second_photo"
+                        <input type="file" class="custom-file-input second" name="second_photo" id="second_photo"
                             accept="image/*">
                     </section>
                     <section class="px-3 my-3">
                         <label for="pt">You Want to Register As:</label>
-                        <select name="second_presenter_type" id="second_presenter_type" class="p-1 form-control">
+                        <select name="second_presenter_type" id="second_presenter_type" class="p-1 form-control second">
                             <option value="">-- Select Participant Type --</option>
                             <option value="research_scholar">Research Scholar</option>
                             <option value="foreign_delegates">Foreign Delegates</option>
@@ -459,6 +557,7 @@ try {
     </main>
 
     <script src="./script/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="./script/jquery.js"></script>
     <script src="./script/script.js"></script>
 
@@ -471,9 +570,77 @@ try {
         $(document).ready(function () {
 
             let amount = 0;
-            let val = "";
-            let isThereSecondAuthor = $("#hasSecondAuthor").prop("checked");
-            let isThereThirdAuthor = $("#hasThirdAuthor").prop("checked");
+            let val = "";        
+
+
+            function clearAndDisableSecondFields() {
+            $('.second').each(function () {
+                if ($(this).is('input[type="checkbox"], input[type="radio"]')) {
+                    // For checkboxes and radio buttons, uncheck and disable
+                    $(this).prop('checked', false).prop('disabled', true);
+                } else {
+                    // For other input, select, and textarea fields, clear value and disable
+                    $(this).val('').prop('disabled', true);
+                }
+            });
+        }
+
+        // Initially call the function to clear and disable fields if needed
+        clearAndDisableSecondFields();
+
+
+        $('#hasSecondAuthor').change(function () {
+            // Check if the checkbox is checked
+            if ($(this).is(':checked')) {
+                // If checked, enable the fields
+                $('.second').prop('disabled', false);
+            } else {
+                // If not checked, clear values and disable the fields
+                clearAndDisableSecondFields();
+            }
+        });
+
+
+        function clearAndDisableThirdFields() {
+            $('.third').each(function () {
+                if ($(this).is('input[type="checkbox"], input[type="radio"]')) {
+                    // For checkboxes and radio buttons, uncheck and disable
+                    $(this).prop('checked', false).prop('disabled', true);
+                } else {
+                    // For other input, select, and textarea fields, clear value and disable
+                    $(this).val('').prop('disabled', true);
+                }
+            });
+        }
+
+        // Initially call the function to clear and disable fields if needed
+        clearAndDisableThirdFields();
+
+        $('#hasThirdAuthor').change(function () {
+            // Check if the checkbox is checked
+            if ($(this).is(':checked')) {
+                // If checked, enable the fields
+                $('.third').prop('disabled', false);
+            } else {
+                // If not checked, clear values and disable the fields
+                clearAndDisableThirdFields();
+            }
+        });
+
+            let isThereSecondAuthor = $("#hasSecondAuthor").is(':checked');
+            let isThereThirdAuthor = $("#hasThirdAuthor").is(':checked');
+
+
+
+            console.log("check",isThereSecondAuthor)
+            $("#hasSecondAuthor").change(function () {
+                isThereSecondAuthor = $("#hasSecondAuthor").is(':checked');
+                console.log(isThereSecondAuthor);
+            })
+            $("#hasThirdAuthor").change(function name() {
+                isThereThirdAuthor = $("#hasThirdAuthor").is(':checked');
+                console.log(isThereThirdAuthor)
+            })
 
 
             const registrationPrices = {
@@ -486,12 +653,12 @@ try {
             };
 
             function changeAmt() {
-                amount = $("#first_presenter_type").val();
+                amount = registrationPrices[$("#first_presenter_type").val()];
                 if (isThereSecondAuthor) {
-                    amount += $("#second_presenter_type").val();
+                    amount += registrationPrices[$("#second_presenter_type").val()];
                 }
                 if (isThereThirdAuthor) {
-                    amount += $("#third_presenter_type").val();
+                    amount += registrationPrices[$("#third_presenter_type").val()];
                 }
 
                 amount *= 100;
@@ -607,15 +774,23 @@ try {
                     isValid = false;
                 }
 
-                name = $('#second_name').val();
-                if (!/^[A-Za-z\s]+$/.test(name)) {
-                    alert('Name should contain only alphabets and spaces. Check Name of Second Author');
-                    isValid = false;
+                if (isThereSecondAuthor) {
+
+                    name = $('#second_name').val();
+
+                    if (!/^[A-Za-z\s]+$/.test(name)) {
+                        alert('Name should contain only alphabets and spaces. Check Name of Second Author');
+                        isValid = false;
+                    }
                 }
-                name = $('#first_name').val();
-                if (!/^[A-Za-z\s]+$/.test(name)) {
-                    alert('Name should contain only alphabets and spaces. Check Name of First Author');
-                    isValid = false;
+
+                if (isThereThirdAuthor) {
+
+                    name = $('#third_name').val();
+                    if (!/^[A-Za-z\s]+$/.test(name)) {
+                        alert('Name should contain only alphabets and spaces. Check Name of First Author');
+                        isValid = false;
+                    }
                 }
                 // Add more validations as needed
 
