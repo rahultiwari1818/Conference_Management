@@ -1,38 +1,47 @@
 <?php
-    require("./partials/config.php");
-    $query = "select * from tbl_admin";
-    $result = $conn->query($query);
-    if($result->num_rows > 0){
-        header("location:./attendent.php");
-    }
-    try {
+ require("./partials/config.php");
 
-        if (isset($_POST["completeSetUp"]) && $_POST["completeSetUp"] == "Finish Set Up") {
-            $password = $_POST["password"];
-            $name = $_POST["name"];
-            $email = $_POST["email"];
-            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-        
-            $query = "INSERT INTO tbl_admin (`ad_id`, `admin_name`,`admin_email`, `admin_password`) VALUES ('admin1', '$name', '$email', '$passwordHash')";
-            if ($conn->query($query)) {
-                ?>
-                <script>
-                    alert("System Set Up Successfully!");
-                </script>
-                <?php
-                // session_start();
-                header("location:./attendent.php");
-            } else {
-                echo "Error: " . $conn->error;
-            }
-        }
-    
-
-    } catch (\Throwable $th) {
-        //throw $th;
-        echo $conn->error;
-    }
-
+ // Check if there are any existing admin records
+ $queryCheckAdmin = "SELECT * FROM tbl_admin";
+ $resultCheckAdmin = $conn->query($queryCheckAdmin);
+ 
+ if ($resultCheckAdmin->num_rows > 0) {
+     header("location: ./attendent.php");
+     exit(); // Always exit after redirect
+ }
+ 
+ try {
+     if (isset($_POST["completeSetUp"]) && $_POST["completeSetUp"] == "Finish Set Up") {
+         $password = $_POST["password"];
+         $name = $_POST["name"];
+         $email = $_POST["email"];
+         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+ 
+         // Use prepared statement to prevent SQL injection
+         $stmt = $conn->prepare("INSERT INTO tbl_admin (`ad_id`, `admin_name`, `admin_email`, `admin_password`) VALUES ('admin1', ?, ?, ?)");
+         $stmt->bind_param('sss', $name, $email, $passwordHash);
+ 
+         if ($stmt->execute()) {
+             ?>
+             <script>
+                 alert("System Set Up Successfully!");
+             </script>
+             <?php
+             header("location: ./attendent.php");
+             exit(); // Always exit after redirect
+         } else {
+             echo "Error: " . $stmt->error;
+         }
+ 
+         $stmt->close(); // Close the prepared statement
+     }
+ } catch (\Throwable $th) {
+     // Handle exceptions appropriately
+     echo $th->getMessage();
+ }
+ 
+ $conn->close(); // Close the database connection
+ 
 
 ?>
 

@@ -1,69 +1,53 @@
 <?php
 session_start();
 require("./partials/config.php");
+
 try {
-    // echo
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["photo"])) {
-        $query = "select reg_id from tbl_attendents order by reg_id desc limit 1";
+        $query = "SELECT reg_id FROM tbl_attendents ORDER BY reg_id DESC LIMIT 1";
         $result = $conn->query($query);
+
         if ($result->num_rows > 0) {
-            // Fetch the associative array of the first row
             $row = $result->fetch_assoc();
-        
-            // Extract the numeric part from the 'regId' field
             $regId = $row['reg_id'];
             $numericPart = (int)substr($regId, 3);
             $numericPart += 1;
-        
-            // echo $numericPart;
         } else {
-            $numericPart=1;
+            $numericPart = 1;
         }
+
         $uploadDir = "./uploads/photos/";
-        $reg_id = "atd".$numericPart;
-        $attendent_type = "Participant";
-        $first_author_email = $_POST["email"];
-        $first_author_salutation = $_POST["salutation"];
-        $first_author_name = $_POST["name"];
-        $first_author_institute_name = $_POST["institute_name"];
-        $first_author_register_as = $_POST["participantType"];
-        $first_author_designation = $_POST["designation"];
-        $first_author_gender = $_POST["gender"];
-        $first_author_mobile = $_POST["phno"];
-        $payment_id = $_POST["paymentId"];
-        $photo_url =  $reg_id . "_" . $_FILES["photo"]["name"];
-        $address = addslashes($_POST["address"]);
+        $regId = "atd" . $numericPart;
 
-        $targetPath = $uploadDir . $photo_url;
-        if (move_uploaded_file($_FILES["photo"]["tmp_name"], $targetPath)) {
-            // echo "Image uploaded successfully.";
-            $query = "INSERT INTO tbl_attendents (`reg_id`, `attendent_type`, `first_author_email`, `first_author_salutation`, `first_author_name`, `first_author_institute_name`,
-            `first_author_register_as`, `first_author_designation`, `first_author_gender`, `first_author_mobile`, `first_author_address`, `first_author_photo`,
-            `payment_id`
-            ) VALUES ('$reg_id', '$attendent_type', '$first_author_email', '$first_author_salutation', '$first_author_name','$first_author_institute_name', '$first_author_register_as', '$first_author_designation', '$first_author_gender', '$first_author_mobile', '$address', '$targetPath', '$payment_id')";
+        // Using prepared statement for inserting data
+        $stmt = $conn->prepare("INSERT INTO tbl_attendents (reg_id, attendent_type, first_author_email, first_author_salutation, first_author_name, first_author_institute_name,
+            first_author_register_as, first_author_designation, first_author_gender, first_author_mobile, first_author_address, first_author_photo, payment_id) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-            if ($conn->query($query)) {
-                ?>
-                <script>
-                    alert("Registered Successfully");
-                </script>
-                <?php
-            } else {
-                echo "Error: " . $conn->error;
-            }
+        $stmt->bind_param('sssssssssssss', $regId, $attendent_type, $first_author_email, $first_author_salutation, $first_author_name, $first_author_institute_name,
+            $first_author_register_as, $first_author_designation, $first_author_gender, $first_author_mobile, $address, $targetPath, $payment_id);
 
+        $targetPath = $uploadDir . $regId . "_" . $_FILES["photo"]["name"];
+
+        if (move_uploaded_file($_FILES["photo"]["tmp_name"], $targetPath) && $stmt->execute()) {
+            ?>
+            <script>
+                alert("Registered Successfully");
+            </script>
+            <?php
         } else {
-            // echo "Error uploading image.";
-            // echo "";
+            echo "Error: " . $stmt->error;
         }
 
+        $stmt->close(); // Close the prepared statement
     }
-
-
-
 } catch (\Throwable $th) {
-    //throw $th;
+    // Handle exceptions appropriately
+    echo $th->getMessage();
 }
+
+$conn->close(); // Close the database connection
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

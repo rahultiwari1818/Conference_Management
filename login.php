@@ -1,33 +1,42 @@
 <?php
-    session_start();
-    require("./partials/config.php");
+session_start();
+require("./partials/config.php");
 
-    if (isset($_POST["loginAdmin"])) {
-        $email = $_POST["email"];
-        $password = $_POST["password"];
-    
-        $query = "SELECT * FROM tbl_admin WHERE admin_email = '$email'";
-        $result = $conn->query($query);
-    
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            $hashedPassword = $row["admin_password"];
-    
-            // Verify the entered password with the hashed password
-            if (password_verify($password, $hashedPassword)) {
-                // Password is correct, perform login actions here
-                $_SESSION["admin_email"] = $email;
-                $_SESSION["isLoggedIn"]=true;
-                header("location: ./attendent.php");
-            } else {
-                // Incorrect password
-                echo '<script>alert("Incorrect password. Please try again.");</script>';
-            }
+if (isset($_POST["loginAdmin"])) {
+    $email = $_POST["email"];
+    $password = $_POST["password"];
+
+    // Use prepared statement to prevent SQL injection
+    $stmt = $conn->prepare("SELECT * FROM tbl_admin WHERE admin_email = ?");
+    $stmt->bind_param('s', $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $hashedPassword = $row["admin_password"];
+
+        // Verify the entered password with the hashed password
+        if (password_verify($password, $hashedPassword)) {
+            // Password is correct, perform login actions here
+            $_SESSION["admin_email"] = $email;
+            $_SESSION["isLoggedIn"] = true;
+            header("location: ./attendent.php");
+            exit(); // Always exit after redirect
         } else {
-            // No user found with the given email
-            echo '<script>alert("No admin found with the provided email.");</script>';
+            // Incorrect password
+            echo '<script>alert("Incorrect password. Please try again.");</script>';
         }
+    } else {
+        // No user found with the given email
+        echo '<script>alert("No admin found with the provided email.");</script>';
     }
+
+    $stmt->close(); // Close the prepared statement
+}
+
+$conn->close(); // Close the database connection
+
 
 ?>
 <!DOCTYPE html>
