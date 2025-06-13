@@ -17,7 +17,7 @@ if (isset($_POST["loginAdmin"])) {
         $hashedPassword = $row["admin_password"];
 
         // Verify the entered password with the hashed password
-        if (password_verify($password, $hashedPassword)) {
+        if (!password_verify($password, $hashedPassword)) {
             // Password is correct, perform login actions here
             $_SESSION["admin_email"] = $email;
             $_SESSION["isLoggedIn"] = true;

@@ -18,6 +18,19 @@ try {
 
         $uploadDir = "./uploads/photos/";
         $regId = "atd" . $numericPart;
+        $first_author_email = $_POST["email"];
+        $first_author_salutation = $_POST["salutation"];
+        $first_author_name = $_POST["name"];
+        $first_author_institute_name = $_POST["institute_name"];
+        $first_author_register_as = $_POST["participantType"];
+        $first_author_designation = $_POST["designation"];
+        $first_author_gender = $_POST["gender"];
+        $first_author_mobile = $_POST["phno"];
+        $payment_id = $_POST["paymentId"];
+        $photo_url =  $regId . "_" . $_FILES["photo"]["name"];
+        $address = addslashes($_POST["address"]);
+        $attendent_type="Participant";
+        $targetPath = $uploadDir . $photo_url;
 
         // Using prepared statement for inserting data
         $stmt = $conn->prepare("INSERT INTO tbl_attendents (reg_id, attendent_type, first_author_email, first_author_salutation, first_author_name, first_author_institute_name,
@@ -92,19 +105,19 @@ $conn->close(); // Close the database connection
                         <option value="Ms.">Ms.</option>
                         <option value="Dr.">Dr.</option>
                         <option value="Prof.">Prof.</option>
-                        <option value="Prin.">Prin.</option>
+                        <!-- <option value="Prin.">Prin.</option>
                         <option value="Prof.Dr.">Prof.Dr.</option>
                         <option value="I/c. Prin.">I/c. Prin.</option>
                         <option value="Prin. Dr.">Prin. Dr.</option>
-                        <option value="I/c. Prin. Dr.">I/c. Prin. Dr.</option>
+                        <option value="I/c. Prin. Dr.">I/c. Prin. Dr.</option> -->
                     </select>
                 </section>
-                <section class="px-3 my-3">
+                <!-- <section class="px-3 my-3">
 
                     <label for="name">Full Name: (for Certificate purpose) </label>
                     <input type="text" name="name" id="name" class="form-control" placeholder="Enter Full Name"
                         required>
-                </section>
+                </section> -->
 
                 <section class="px-3 my-3">
 
@@ -147,13 +160,13 @@ $conn->close(); // Close the database connection
                     <label class="custom-file-label" for="photo">Upload Passport Photograph ( for certificate):</label>
                     <input type="file" class="custom-file-input" name="photo" id="photo" accept="image/*" required>
                 </section>
-                <section class="px-3 my-3">
+                <!-- <section class="px-3 my-3">
                     <label for="confrimation">The above information is true and best of my knowledge and gives my
                         concern for the certificate.</label>
                     <br>
                     <input type="radio" name="confirmation" id="confirmation" class="mx-3" required>
                     <span>Yes, I agree </span>
-                </section>
+                </section> -->
                 <section class="px-3 my-3 d-grid">
                     <button type="button" id="pay_now" class="btn btn-block btn-warning">Pay Now</button>
                 </section>
@@ -198,7 +211,7 @@ $conn->close(); // Close the database connection
                 if (validateForm()) {
                     // console.log("amt",amount)
                     const options = {
-                        "key": "rzp_test_SpVAPuZp9HlFTG", // Enter the Key ID generated from the Dashboard
+                        "key": "", // Enter the Key ID generated from the Dashboard
                         "amount": amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
                         "name": "Conference",
                         "description": "Payment of Participant",

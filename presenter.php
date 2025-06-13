@@ -449,13 +449,13 @@ try {
                     </section>
                     <section class="px-3 my-3">
                         <label for="email">Email:</label>
-                        <input type="email" name="third_email" id="third_email" class="form-control"
+                        <input type="email" name="third_email" id="third_email" class="form-control third"
                             placeholder="Enter Email">
                     </section>
 
                     <section class="px-3 my-3">
                         <label for="salutation">Your Salutation:</label>
-                        <select name="third_salutation" id="third_salutation" class="p-1 form-control">
+                        <select name="third_salutation" id="third_salutation" class="p-1 form-control  third">
                             <option value="">-- Select Your Salutation --</option>
                             <option value="Mr.">Mr.</option>
                             <option value="Mrs.">Mrs.</option>
@@ -471,56 +471,56 @@ try {
                     </section>
                     <section class="px-3 my-3">
                         <label for="name">Full Name: (for Certificate purpose) </label>
-                        <input type="text" name="third_name" id="third_name" class="form-control"
+                        <input type="text" name="third_name" id="third_name" class="form-control  third"
                             placeholder="Enter Full Name">
                     </section>
 
                     <section class="px-3 my-3">
                         <label for="institute_name">Esteemed Institute Name: (for Certificate purpose) </label>
-                        <input type="text" name="third_institute_name" id="third_institute_name" class="form-control"
+                        <input type="text" name="third_institute_name" id="third_institute_name" class="form-control  third"
                             placeholder="Enter Institute Name">
                     </section>
 
                     <section class="px-3 my-3">
                         <label for="Designation">Designation: (for Certificate purpose) </label>
-                        <input type="text" name="third_designation" id="third_designation" class="form-control"
+                        <input type="text" name="third_designation" id="third_designation" class="form-control  third"
                             placeholder="Enter Designation">
                     </section>
                     <section class="px-3 my-3">
                         <label for="address">We can meet (Address)</label>
                         <textarea name="third_author_address" id="third_author_address" cols="30" rows="10"
-                            class="form-control" required></textarea>
+                            class="form-control  third" required></textarea>
                     </section>
                     <section class="px-3 my-3">
                         <label for="gender"> Gender :</label>
                         <section class="form-group">
                             <label for="maleRadio">Male</label>
-                            <input type="radio" class="form-check-input" id="third_male_radio" name="third_gender"
+                            <input type="radio" class="form-check-input  third" id="third_male_radio" name="third_gender"
                                 value="male">
 
                             <label for="femaleRadio">Female</label>
-                            <input type="radio" class="form-check-input" id="third_female_radio" name="third_gender"
+                            <input type="radio" class="form-check-input  third" id="third_female_radio" name="third_gender"
                                 value="female">
 
                             <label for="transgenderRadio">Transgender</label>
-                            <input type="radio" class="form-check-input" id="third_transgender_radio"
+                            <input type="radio" class="form-check-input  third" id="third_transgender_radio"
                                 name="third_gender" value="transgender">
                         </section>
                     </section>
                     <section class="px-3 my-3">
                         <label for="phno">Phone Number:</label>
                         <input type="tel" name="third_phno" id="third_phno" placeholder="Enter Phone Number"
-                            class="form-control">
+                            class="form-control  third">
                     </section>
                     <section class="px-3 my-3 custom-file">
                         <label class="custom-file-label" for="photo">Upload Passport Photograph ( for
                             certificate):</label>
-                        <input type="file" class="custom-file-input" name="third_photo" id="third_photo"
+                        <input type="file" class="custom-file-input  third" name="third_photo" id="third_photo"
                             accept="image/*">
                     </section>
                     <section class="px-3 my-3">
                         <label for="pt">You Want to Register As:</label>
-                        <select name="third_presenter_type" id="third_presenter_type" class="p-1 form-control">
+                        <select name="third_presenter_type" id="third_presenter_type" class="p-1 form-control  third">
                             <option value="">-- Select Participant Type --</option>
                             <option value="research_scholar">Research Scholar</option>
                             <option value="foreign_delegates">Foreign Delegates</option>
@@ -675,7 +675,7 @@ try {
                 if (validateForm()) {
                     // console.log("amt",amount)
                     const options = {
-                        "key": "rzp_test_SpVAPuZp9HlFTG", // Enter the Key ID generated from the Dashboard
+                        "key": "", // Enter the Key ID generated from the Dashboard
                         "amount": amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
                         "name": "Conference",
                         "description": "Payment of Participant",
