@@ -53,7 +53,7 @@ $(document).ready(function () {
     if (!validateRegistrationForm()) return;
 
     const options = {
-      key: "rzp_test_SpVAPuZp9HlFTG", // Enter the Key ID generated from the Dashboard
+      key: "", // Enter the Key ID generated from the Dashboard
       amount: 1000, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
       name: "Conference",
       description: "Payment of Participant",

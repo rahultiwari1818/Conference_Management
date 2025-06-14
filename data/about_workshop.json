@@ -1,0 +1,9 @@
+{
+  "title": "About the Workshop",
+  "description": "The subject of differential equations is the natural goal of elementary calculus, and, most importantly, it is the source of ideas and theories for studying the change in the real world. The several questions naturally arise:\n\n\"What is a differential equation? How do differential equations originate and what they represent? When encountered with a differential equation, what does one do with it, how does one do it, and what are the conclusions of such pursuit?\"\n\nThese questions signify three major aspects of the subject: Theory, Methods, and Applications. Therefore, in this workshop, first we introduce the basic aspects of the differential equations and challenges in solving them. Secondly, we try to answer how differential equations arise naturally in modelling real world problems viz. biological, epidemiological, social psychology, etc. in present scenario. Finally, we connect the subject with its emerging applications, especially use of Machine Learning (ML) and Quantum Computing (QC) in solving differential equations. Hence, this online workshop is meant to provide the foremost interdisciplinary colloquium for experts and young researchers to present and discuss the most recent innovations in the emerging areas of differential equations.",
+  "modules": [
+    "Module 1: Integer-order Differential Equations and Fractional Differential Equations",
+    "Module 2: Quantum Computing and Differential Equations",
+    "Module 3: Machine Learning and Differential Equations"
+  ]
+}

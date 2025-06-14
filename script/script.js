@@ -3,6 +3,75 @@ $(document).ready(function () {
     $("#attendentTypeForm").submit();
   });
 
+  //   --------------------------------------- About Section data fetching -----------------------------------------------
+
+  $.getJSON("./data/about_workshop.json", function (data) {
+    const content = `
+        <div class="about-workshop-content p-4">
+          <h2 class="workshop-title text-center mb-4">${data.title}</h2>
+          <p class="workshop-description mb-4">${data.description.replace(
+            /\n/g,
+            "<br><br>"
+          )}</p>
+          <h4 class="text-dark mb-3">Workshop Modules:</h4>
+          <ul class="workshop-modules list-group list-group-flush">
+            ${data.modules
+              .map((module) => `<li class="list-group-item">${module}</li>`)
+              .join("")}
+          </ul>
+        </div>`;
+    $("#about-workshop-section .shadow-lg").html(content);
+  });
+
+  // ---------------------------------------------------- Important Dates Section -----------------------------------------------------
+
+  $.getJSON("./data/important_dates.json", function (data) {
+    const content = `
+        <div class="important-dates-content p-4">
+          <h2 class="dates-title text-center mb-4">${data.title}</h2>
+          <ul class="dates-list list-group list-group-flush">
+            ${data.dates
+              .map(
+                (item) => `
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span class="event-name">${item.event}</span>
+                <span class="event-date">${item.date}</span>
+              </li>`
+              )
+              .join("")}
+          </ul>
+        </div>`;
+    $("#important-dates-section .shadow-lg").html(content);
+  });
+
+
+
+//   -------------------------------------------------- Workshop Schedule Section ----------------------------------------------------------------------------
+
+ $.getJSON("./data/workshop_schedule.json", function (data) {
+      let scheduleHTML = "";
+      data.schedule.forEach((dayObj, index) => {
+        scheduleHTML += `
+          <div class="col-md-6">
+            <div class="schedule-card p-3 h-100">
+              <h5 class="schedule-day mb-3">${dayObj.day}</h5>
+              <ul class="list-group list-group-flush">
+                ${dayObj.sessions.map(
+                  session => `
+                  <li class="list-group-item">
+                    <strong>${session.time}</strong><br/>
+                    ${session.topic}
+                  </li>
+                `
+                ).join("")}
+              </ul>
+            </div>
+          </div>
+        `;
+      });
+      $("#schedule-container").html(scheduleHTML);
+    });
+
   // ------------------------- to Committee Members data ------------------------------------------------------------
 
   $.getJSON("./data/committee_data.json", function (data) {
@@ -86,16 +155,63 @@ $(document).ready(function () {
     window.open(link, "_blank"); // open in new tab
   });
 
+  //   --------------------------------------- Registration Notes Data fetch ------------------------------------------------------------
 
+  $.getJSON("./data/registration_fees_and_notes.json", function (data) {
+    function renderFeeTable(targetId, feeData) {
+      let html = `<table class="custom-table"><thead><tr><th>Category</th><th>Online</th><th>Onsite</th></tr></thead><tbody>`;
+      const categories = Object.keys(feeData.Online);
+      categories.forEach((cat) => {
+        html += `<tr><td>${cat}</td><td>${feeData.Online[cat]}</td><td>${feeData.Onsite[cat]}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+      $(targetId).html(html);
+    }
 
+    renderFeeTable(
+      "#workshopTable",
+      data["RegistrationFee(Including 18% GST)"]["Workshop"]
+    );
+    renderFeeTable(
+      "#conferenceTable",
+      data["RegistrationFee(Including 18% GST)"]["Conference"]
+    );
+    renderFeeTable(
+      "#workshopConfTable",
+      data["RegistrationFee(Including 18% GST)"]["Workshop + Conference"]
+    );
 
+    $("#srmRate").text(
+      data["RegistrationFee(Including 18% GST)"]["SRM Faculty/Students"]
+    );
 
+    data.Notes.forEach((note) => {
+      $("#notesList").append(`<li>${note}</li>`);
+    });
+
+    $(".toggle-btn").click(function () {
+      const target = $(this).data("target");
+      $(target).toggleClass("hidden");
+    });
+  });
+
+  //   --------------------------------------------------- Sponsors Data Fetch -------------------------------------------------------------
+
+  $.getJSON("./data/sponsors_data.json", function (response) {
+    const sponsors = response.data;
+    const container = $("#sponsors-container");
+
+    sponsors.forEach((sponsor) => {
+      const sponsorCard = `
+          <div class="col-md-4 col-sm-6 text-center mb-4">
+            <a href="${sponsor.link}" target="_blank" class="sponsor-card d-block p-3">
+              <img src="${sponsor.image}" alt="Sponsor Logo" class="sponsor-img img-fluid">
+            </a>
+          </div>`;
+      container.append(sponsorCard);
+    });
+  });
 });
-
-
-
-
-
 
 function toggleMore(button, index) {
   $(`.hidden-${index}`).removeClass("hidden-interest");

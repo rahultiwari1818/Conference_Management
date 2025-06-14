@@ -2,6 +2,8 @@
 session_start();
 require("./partials/config.php");
 
+                        $API_KEY =  "''";
+                        
 try {
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["photo"])) {
         $query = "SELECT reg_id FROM tbl_attendents ORDER BY reg_id DESC LIMIT 1";
@@ -211,7 +213,9 @@ $conn->close(); // Close the database connection
                 if (validateForm()) {
                     // console.log("amt",amount)
                     const options = {
-                        "key": "", // Enter the Key ID generated from the Dashboard
+                        "key": <?php
+                        echo $API_KEY;
+                        ?>, // Enter the Key ID generated from the Dashboard
                         "amount": amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
                         "name": "Conference",
                         "description": "Payment of Participant",
